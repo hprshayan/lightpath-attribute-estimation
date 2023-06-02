@@ -39,13 +39,28 @@ def load_dataset(path: pathlib, label_pattern: str, labels: list[str]) -> pd.Dat
     return dataset
 
 
+def decompose_complex_data(df: pd.DataFrame, ignore_columns: list[str]) -> pd.DataFrame:
+    """decomposes the string values to float in phase and quadrature columns"""
+    decomposed_dataset = pd.DataFrame()
+    decompose_columns = list(set(df.columns) - set(ignore_columns))
+    complex_data = df[decompose_columns].applymap(lambda x: complex(x.replace('i', 'j')))
+    i_df = complex_data.applymap(lambda x: x.real)
+    q_df = complex_data.applymap(lambda x: x.imag)
+    decomposed_dataset = pd.concat([i_df, q_df], axis=1, ignore_index=True)
+    decomposed_dataset[ignore_columns] = df[ignore_columns]
+    decomposed_dataset.columns = (
+        [f'{c}_i' for c in decompose_columns] + [f'{c}_q' for c in decompose_columns] + ignore_columns
+    )
+    return decomposed_dataset
+
+
 # accessible_data_dir = pathlib.Path(ACCESSIBLE_DATA_DIR)
 # single_link_data_dir = accessible_data_dir / SINGLE_LINK_DATA_DIR
 # single_link_data_optimal_dir = single_link_data_dir / SINGLE_LINK_DATA_OPTIMAL_DIR
 # multiple_link_data_dir = accessible_data_dir / MULTIPLE_LINK_DATA_DIR
-#
-# single = label_extractor('consts_13span', SINGLE_LINK_RE_PATTERN)
-# multiple = label_extractor('in2_consts_560km_links_power-1dBm', MULTIPLE_LINK_RE_PATTERN)
+
 # single_df = load_dataset(single_link_data_optimal_dir, SINGLE_LINK_RE_PATTERN, SINGLE_LINK_LABELS_LIST)
 # multiple_df = load_dataset(multiple_link_data_dir, MULTIPLE_LINK_RE_PATTERN, MULTIPLE_LINK_LABELS_LIST)
+# decomposed_dataset = decompose_complex_data(multiple_df, MULTIPLE_LINK_LABELS_LIST)
+# decomposed_dataset = decompose_complex_data(single_df, SINGLE_LINK_LABELS_LIST)
 # l = 4
