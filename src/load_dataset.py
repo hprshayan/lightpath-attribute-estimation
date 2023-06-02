@@ -1,33 +1,35 @@
 import pathlib
 import re
+from enum import Enum, auto
 
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
-# from src.const import ACCESSIBLE_DATA_DIR, SINGLE_LINK_DATA_DIR
-from const import (
+from src.const import (
     ACCESSIBLE_DATA_DIR,
     MULTIPLE_LINK_DATA_DIR,
     MULTIPLE_LINK_LABELS_LIST,
     MULTIPLE_LINK_RE_PATTERN,
     SINGLE_LINK_DATA_DIR,
-    SINGLE_LINK_DATA_OPTIMAL_DIR,
     SINGLE_LINK_LABELS_LIST,
     SINGLE_LINK_RE_PATTERN,
 )
 
 
+class Scenario(Enum):
+    SINGLE_LINK = auto()
+    MULTIPLE_LINK = auto()
+
+
 def label_extractor(file_name: str, compiler: re.compile) -> list[str]:
-    """helper function that extracts the labels from file names"""
+    '''helper function that extracts the labels from file names'''
     labels = compiler.findall(file_name)[0]
     if isinstance(labels, str):
         return (labels,)
     return labels
 
 
-def load_dataset(path: pathlib, label_pattern: str, labels: list[str]) -> pd.DataFrame:
-    """loads the dataset and concatenates targetst to the dataset"""
+def load_csv_dataset(path: pathlib, label_pattern: str, labels: list[str]) -> pd.DataFrame:
+    '''loads the dataset and concatenates targetst to the dataset'''
     dataset = pd.DataFrame()
     re_compiler = re.compile(label_pattern)
     for file_path in path.iterdir():
@@ -40,7 +42,7 @@ def load_dataset(path: pathlib, label_pattern: str, labels: list[str]) -> pd.Dat
 
 
 def decompose_complex_data(df: pd.DataFrame, ignore_columns: list[str]) -> pd.DataFrame:
-    """decomposes the string values to float in phase and quadrature columns"""
+    '''decomposes the string values to float in phase and quadrature columns'''
     decomposed_dataset = pd.DataFrame()
     decompose_columns = list(set(df.columns) - set(ignore_columns))
     complex_data = df[decompose_columns].applymap(lambda x: complex(x.replace('i', 'j')))
@@ -54,6 +56,32 @@ def decompose_complex_data(df: pd.DataFrame, ignore_columns: list[str]) -> pd.Da
     return decomposed_dataset
 
 
+def load_csv_decompose(path: pathlib.Path, label_pattern: str, labels: list[str]) -> pd.DataFrame:
+    '''loads the csv file and decomposes the complex data'''
+    raw_dataset = load_csv_dataset(path, label_pattern, labels)
+    return decompose_complex_data(raw_dataset, labels)
+
+
+def load_dataset(scenario: Scenario, seed: int | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
+    '''loads the intended dataset with the extracted labels from file paths'''
+    accessible_data_dir = pathlib.Path(ACCESSIBLE_DATA_DIR)
+    if scenario == Scenario.SINGLE_LINK:
+        single_link_data_dir = accessible_data_dir / SINGLE_LINK_DATA_DIR
+        labels = SINGLE_LINK_LABELS_LIST + ['mode']
+        dataset = pd.DataFrame()
+        for scenario_mode_path in single_link_data_dir.iterdir():
+            sub_dataset = load_csv_decompose(scenario_mode_path, SINGLE_LINK_RE_PATTERN, SINGLE_LINK_LABELS_LIST)
+            sub_dataset['mode'] = scenario_mode_path.stem
+            dataset = pd.concat([dataset, sub_dataset], axis=0, ignore_index=True)
+    elif scenario == Scenario.MULTIPLE_LINK:
+        multiple_link_data_dir = accessible_data_dir / MULTIPLE_LINK_DATA_DIR
+        labels = MULTIPLE_LINK_LABELS_LIST
+        dataset = load_csv_decompose(multiple_link_data_dir, MULTIPLE_LINK_RE_PATTERN, MULTIPLE_LINK_LABELS_LIST)
+    if seed is not None:
+        dataset = dataset.sample(frac=1, random_state=seed)
+    return dataset.drop(labels, axis=1), dataset[labels]
+
+
 # accessible_data_dir = pathlib.Path(ACCESSIBLE_DATA_DIR)
 # single_link_data_dir = accessible_data_dir / SINGLE_LINK_DATA_DIR
 # single_link_data_optimal_dir = single_link_data_dir / SINGLE_LINK_DATA_OPTIMAL_DIR
@@ -64,3 +92,5 @@ def decompose_complex_data(df: pd.DataFrame, ignore_columns: list[str]) -> pd.Da
 # decomposed_dataset = decompose_complex_data(multiple_df, MULTIPLE_LINK_LABELS_LIST)
 # decomposed_dataset = decompose_complex_data(single_df, SINGLE_LINK_LABELS_LIST)
 # l = 4
+# load_dataset(Scenario.SINGLE_LINK)
+# load_dataset(Scenario.MULTIPLE_LINK)
