@@ -6,9 +6,11 @@ import pandas as pd
 
 from src.constants import (
     ACCESSIBLE_DATA_DIR,
+    LINK_LENGTH_FEATURE,
+    LOCATION_FEATURE,
     MULTIPLE_LINK_DATA_DIR,
-    MULTIPLE_LINK_LABELS_LIST,
     MULTIPLE_LINK_RE_PATTERN,
+    POWER_FEATURE,
     SINGLE_LINK_DATA_DIR,
     SINGLE_LINK_MODE_FEATURE,
     SINGLE_LINK_RE_PATTERN,
@@ -78,8 +80,8 @@ def load_dataset(scenario: Scenario, seed: int | None = None) -> tuple[pd.DataFr
             dataset = pd.concat([dataset, sub_dataset], axis=0, ignore_index=True)
     elif scenario == Scenario.MULTIPLE_LINK:
         multiple_link_data_dir = accessible_data_dir / MULTIPLE_LINK_DATA_DIR
-        labels = MULTIPLE_LINK_LABELS_LIST
-        dataset = load_csv_decompose(multiple_link_data_dir, MULTIPLE_LINK_RE_PATTERN, MULTIPLE_LINK_LABELS_LIST)
+        labels = [LOCATION_FEATURE, LINK_LENGTH_FEATURE, POWER_FEATURE]
+        dataset = load_csv_decompose(multiple_link_data_dir, MULTIPLE_LINK_RE_PATTERN, labels)
     if seed is not None:
         dataset = dataset.sample(frac=1, random_state=seed)
     return dataset.drop(labels, axis=1), dataset[labels]

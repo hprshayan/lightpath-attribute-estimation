@@ -4,21 +4,21 @@ from typing import Callable
 import pandas as pd
 
 from src.compressor import CompressorExplainer, compressor_performance_calculator
-from src.constants import SINGLE_LINK_DISTANCE_FEATURE, TEST_DEPICTION_COUNT
-from src.preprocessing import ArrayLike
+from src.constants import DISTANCE_FEATURE, TEST_DEPICTION_COUNT
+from src.preprocessing import ArrayLike, remove_column_features
 
 
-def scenario_announcement(message: str) -> None:
+def print_announcement(message: str) -> None:
     padded_message = ' ' + message + ' '
-    max_length = 92
+    MAX_LEN = 102
     msg_len = len(padded_message)
-    half_extra_char_count = (max_length - msg_len) // 2
-    if msg_len > max_length:
-        raise ValueError(f'message must be less than {max_length - 2} characters.')
+    half_extra_char_count = (MAX_LEN - msg_len) // 2
+    if msg_len > MAX_LEN:
+        raise ValueError(f'Speak less but act more. Message must be less than {MAX_LEN - 2} characters.')
     print()
-    print('#' * max_length)
-    print('#' * half_extra_char_count, padded_message, '#' * (max_length - half_extra_char_count - msg_len), sep='')
-    print('#' * max_length)
+    print('#' * MAX_LEN)
+    print('#' * half_extra_char_count, padded_message, '#' * (MAX_LEN - half_extra_char_count - msg_len), sep='')
+    print('#' * MAX_LEN)
 
 
 def create_regression_report(
@@ -32,7 +32,7 @@ def create_regression_report(
     label_scaler: Callable,
 ) -> None:
     predictions = label_scaler.inv_transform(pipeline(feature_test[:TEST_DEPICTION_COUNT])).flatten()
-    targets = label_test[SINGLE_LINK_DISTANCE_FEATURE][:TEST_DEPICTION_COUNT]
+    targets = label_test[DISTANCE_FEATURE][:TEST_DEPICTION_COUNT]
     indices = targets.index
     result_demo_list = [
         ' ' * 2 + 'index' + ' ' * 10 + 'prediction' + ' ' * 10 + 'target' + ' ' * 10 + '|target-prediction|'
@@ -55,7 +55,7 @@ def create_compression_report(
     compressor_explainer: CompressorExplainer,
 ) -> None:
     compression_ratio, reconstruction_mae = compressor_performance_calculator(
-        original_dim, compressed_dim, compressor_fwd_path(features), features
+        original_dim, compressed_dim, compressor_fwd_path(features), remove_column_features(features)
     )
     print(f'compression with {method} method is done.')
     print(f'compression ratio: {compression_ratio}', f'reconstruction MAE: {reconstruction_mae}', sep='\t')
