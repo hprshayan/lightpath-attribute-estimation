@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.const import (
+from src.constants import (
     SINGLE_LINK_MODE_FEATURE,
     SINGLE_LINK_MODE_SPEC,
     SINGLE_LINK_SPAN_COUNT_FEATURE,

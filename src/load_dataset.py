@@ -4,7 +4,7 @@ from enum import Enum, auto
 
 import pandas as pd
 
-from src.const import (
+from src.constants import (
     ACCESSIBLE_DATA_DIR,
     MULTIPLE_LINK_DATA_DIR,
     MULTIPLE_LINK_LABELS_LIST,
@@ -83,17 +83,3 @@ def load_dataset(scenario: Scenario, seed: int | None = None) -> tuple[pd.DataFr
     if seed is not None:
         dataset = dataset.sample(frac=1, random_state=seed)
     return dataset.drop(labels, axis=1), dataset[labels]
-
-
-# accessible_data_dir = pathlib.Path(ACCESSIBLE_DATA_DIR)
-# single_link_data_dir = accessible_data_dir / SINGLE_LINK_DATA_DIR
-# single_link_data_optimal_dir = single_link_data_dir / SINGLE_LINK_DATA_OPTIMAL_DIR
-# multiple_link_data_dir = accessible_data_dir / MULTIPLE_LINK_DATA_DIR
-
-# single_df = load_dataset(single_link_data_optimal_dir, SINGLE_LINK_RE_PATTERN, SINGLE_LINK_LABELS_LIST)
-# multiple_df = load_dataset(multiple_link_data_dir, MULTIPLE_LINK_RE_PATTERN, MULTIPLE_LINK_LABELS_LIST)
-# decomposed_dataset = decompose_complex_data(multiple_df, MULTIPLE_LINK_LABELS_LIST)
-# decomposed_dataset = decompose_complex_data(single_df, SINGLE_LINK_LABELS_LIST)
-# l = 4
-# load_dataset(Scenario.SINGLE_LINK)
-# load_dataset(Scenario.MULTIPLE_LINK)
