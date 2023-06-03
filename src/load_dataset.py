@@ -10,8 +10,9 @@ from src.const import (
     MULTIPLE_LINK_LABELS_LIST,
     MULTIPLE_LINK_RE_PATTERN,
     SINGLE_LINK_DATA_DIR,
-    SINGLE_LINK_LABELS_LIST,
+    SINGLE_LINK_MODE_FEATURE,
     SINGLE_LINK_RE_PATTERN,
+    SINGLE_LINK_SPAN_COUNT_FEATURE,
 )
 
 
@@ -67,11 +68,13 @@ def load_dataset(scenario: Scenario, seed: int | None = None) -> tuple[pd.DataFr
     accessible_data_dir = pathlib.Path(ACCESSIBLE_DATA_DIR)
     if scenario == Scenario.SINGLE_LINK:
         single_link_data_dir = accessible_data_dir / SINGLE_LINK_DATA_DIR
-        labels = SINGLE_LINK_LABELS_LIST + ['mode']
+        labels = [SINGLE_LINK_SPAN_COUNT_FEATURE, SINGLE_LINK_MODE_FEATURE]
         dataset = pd.DataFrame()
         for scenario_mode_path in single_link_data_dir.iterdir():
-            sub_dataset = load_csv_decompose(scenario_mode_path, SINGLE_LINK_RE_PATTERN, SINGLE_LINK_LABELS_LIST)
-            sub_dataset['mode'] = scenario_mode_path.stem
+            sub_dataset = load_csv_decompose(
+                scenario_mode_path, SINGLE_LINK_RE_PATTERN, [SINGLE_LINK_SPAN_COUNT_FEATURE]
+            )
+            sub_dataset[SINGLE_LINK_MODE_FEATURE] = scenario_mode_path.stem
             dataset = pd.concat([dataset, sub_dataset], axis=0, ignore_index=True)
     elif scenario == Scenario.MULTIPLE_LINK:
         multiple_link_data_dir = accessible_data_dir / MULTIPLE_LINK_DATA_DIR
