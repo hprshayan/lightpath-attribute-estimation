@@ -10,6 +10,7 @@ from src.constants import (
     SINGLE_LINK_SPAN_COUNT_FEATURE,
     SPAN_LENGTH,
 )
+from src.load_dataset import concat_helper
 
 
 def distance_calculator(span_count: int, offset: int = 0) -> int:
@@ -32,4 +33,4 @@ def calculate_multiple_link_label_derivations(labels: pd.DataFrame) -> pd.DataFr
     )
     roadm_side = labels.apply(lambda row: int(MULTIPLE_LINKS_MODE_SPEC[row[LOCATION_FEATURE]].is_ingress), axis=1)
     power = labels.apply(lambda row: int(row[POWER_FEATURE]) - 1, axis=1)
-    return pd.concat([distance, roadm_side, power], axis=1)
+    return concat_helper(distance, roadm_side, power)

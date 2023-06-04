@@ -1,122 +1,65 @@
 from __future__ import annotations
 
 from functools import reduce, singledispatch
+from itertools import chain
 from typing import Callable, TypeVar
 
 import numpy as np
 import pandas as pd
+from numpy import ndarray
+from scipy.sparse import spmatrix
+from sklearn.discriminant_analysis import StandardScaler
+from sklearn.model_selection import train_test_split
 
-from src.constants import DISTANCE_FEATURE, ROADM_SIDE_FEATURE
-
-ArrayLike = TypeVar('ArrayLike', pd.DataFrame, pd.Series, np.ndarray)
-NdArrayNone = np.ndarray | None
+MyArrayLike = TypeVar('MyArrayLike', pd.DataFrame, pd.Series, np.ndarray)
 
 
-def mean_std_calculator(data: pd.DataFrame | pd.Series) -> tuple[float, float]:
+@singledispatch
+def mean_std_calculator(data: pd.DataFrame) -> tuple[float, float]:
     return data.to_numpy().flatten().mean(), data.to_numpy().flatten().std()
 
 
-@singledispatch
-def fit_helper(data: pd.DataFrame, column_features: list[str] | None) -> tuple[float, float, NdArrayNone, NdArrayNone]:
-    mean_matrix, std_matrix = mean_std_calculator(data.loc[:, ~data.columns.isin(column_features)])
-    mean_column = data[column_features].mean().to_numpy()
-    std_column = data[column_features].std().to_numpy()
-    return mean_matrix, std_matrix, mean_column, std_column
-
-
-@fit_helper.register
-def _(data: pd.Series, column_features: list[str] | None) -> tuple[float, float, NdArrayNone, NdArrayNone]:
-    mean_matrix, std_matrix = mean_std_calculator(data)
-    return mean_matrix, std_matrix, None, None
-
-
-@singledispatch
-def transform_helper(
-    data: pd.DataFrame,
-    _mean_matrix: float,
-    _std_matrix: float,
-    _mean_column: NdArrayNone,
-    _std_column: NdArrayNone,
-    _column_features: list[str] | None,
-) -> ArrayLike:
-    data.loc[:, ~data.columns.isin(_column_features)] = (
-        data.loc[:, ~data.columns.isin(_column_features)] - _mean_matrix
-    ) / _std_matrix
-    data[_column_features] = (data[_column_features] - _mean_column) / _std_column
-    return data
-
-
-@transform_helper.register
-def _(
-    data: pd.Series,
-    _mean_matrix: float,
-    _std_matrix: float,
-    _mean_column: NdArrayNone,
-    _std_column: NdArrayNone,
-    _column_features: list[str] | None,
-) -> ArrayLike:
-    return (data - _mean_matrix) / _std_matrix
-
-
-@singledispatch
-def inv_transform_helper(
-    data: pd.DataFrame,
-    _mean_matrix: float,
-    _std_matrix: float,
-    _mean_column: NdArrayNone,
-    _std_column: NdArrayNone,
-    _column_features: list[str] | None,
-) -> ArrayLike:
-    data.loc[:, ~data.columns.isin(_column_features)] = (
-        data.loc[:, ~data.columns.isin(_column_features)] * _std_matrix + _mean_matrix
-    )
-    data[_column_features] = data[_column_features] * _std_column + _mean_column
-    return data
-
-
-@inv_transform_helper.register
-def _(
-    data: pd.Series,
-    _mean_matrix: float,
-    _std_matrix: float,
-    _mean_column: NdArrayNone,
-    _std_column: NdArrayNone,
-    _column_features: list[str] | None,
-) -> ArrayLike:
-    return data * _std_matrix + _mean_matrix
+@mean_std_calculator.register
+def _(data: np.ndarray) -> tuple[float, float]:
+    return data.mean(), data.std()
 
 
 class CustomStandardScaler:
-    '''A custom standard scaler model'''
+    '''normalizes the whole data frame'''
 
-    def __init__(self, column_features: list[str] | None = None):
-        self._mean_matrix: float = 0
-        self._std_matrix: float = 0
-        self._mean_column: NdArrayNone = None
-        self._std_column: NdArrayNone = None
-        if column_features is None:
-            self._column_features = []
-        else:
-            self._column_features = column_features
+    def __ini__(self):
+        self._mean: float = 0
+        self._std: float = 0
 
-    def fit(self, data: ArrayLike) -> CustomStandardScaler:
-        self._mean_matrix, self._std_matrix, self._mean_column, self._std_column = fit_helper(
-            data, self._column_features
-        )
+    def fit(self, data: MyArrayLike) -> CustomStandardScaler:
+        self._mean, self._std = mean_std_calculator(data)
         return self
 
-    def transform(self, data: ArrayLike) -> ArrayLike:
-        return transform_helper(data, **self.__dict__)
+    def transform(self, data: MyArrayLike) -> pd.DataFrame:
+        return pd.DataFrame((data - self._mean) / self._std)
 
-    def inv_transform(self, data: ArrayLike) -> ArrayLike:
-        return inv_transform_helper(data, **self.__dict__)
+    def inv_transform(self, data: MyArrayLike) -> pd.DataFrame:
+        return pd.DataFrame(data * self._std + self._mean)
+
+
+class StandardScalerDf(StandardScaler):
+    '''StandardScaler with DataFrame output'''
+
+    def transform(self, X):
+        return pd.DataFrame(super().transform(X))
+
+    def inverse_transform(self, X):
+        return pd.DataFrame(super().inverse_transform(X))
 
 
 def create_fit_transfrom_standard_scaler(
-    data: ArrayLike, column_features: list[str] | None = None
-) -> tuple[CustomStandardScaler, ArrayLike]:
+    data: MyArrayLike, column_wise: bool = False
+) -> tuple[CustomStandardScaler, MyArrayLike]:
     '''creates a CustomScaler, fits it on data and returns the scaler, and scaled data'''
-    scaler = CustomStandardScaler(column_features).fit(data)
+    if column_wise:
+        scaler = StandardScalerDf().fit(data)
+    else:
+        scaler = CustomStandardScaler().fit(data)
     return scaler, scaler.transform(data)
 
 
@@ -125,6 +68,7 @@ def make_pipeline(steps: list[Callable]) -> Callable:
     return reduce(lambda x, y: lambda arg: y(x(arg)), steps)
 
 
-def remove_column_features(data: pd.DataFrame) -> pd.DataFrame:
-    '''removes non-constellation columns'''
-    return data.loc[:, ~data.columns.isin([DISTANCE_FEATURE, ROADM_SIDE_FEATURE])]
+def custom_train_test_split(*dfs: MyArrayLike, test_size: float, random_state: int) -> tuple[MyArrayLike, ...]:
+    row_count = dfs[0].shape[0]
+    train_indices, test_indices = train_test_split(range(row_count), test_size=test_size, random_state=random_state)
+    return tuple(chain(*((df.iloc[train_indices], df.iloc[test_indices]) for df in dfs)))

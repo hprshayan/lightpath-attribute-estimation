@@ -23,6 +23,11 @@ class Scenario(Enum):
     MULTIPLE_LINK = auto()
 
 
+def concat_helper(*dfs: pd.DataFrame, ignore_index: bool = False) -> pd.DataFrame:
+    '''horizontally concatenates sequence of pd.DataFrames'''
+    return pd.concat(dfs, axis=1, ignore_index=ignore_index)
+
+
 def label_extractor(file_name: str, compiler: re.compile) -> list[str]:
     '''helper function that extracts the labels from file names'''
     labels = compiler.findall(file_name)[0]
@@ -51,7 +56,7 @@ def decompose_complex_data(df: pd.DataFrame, ignore_columns: list[str]) -> pd.Da
     complex_data = df[decompose_columns].applymap(lambda x: complex(x.replace('i', 'j')))
     i_df = complex_data.applymap(lambda x: x.real)
     q_df = complex_data.applymap(lambda x: x.imag)
-    decomposed_dataset = pd.concat([i_df, q_df], axis=1, ignore_index=True)
+    decomposed_dataset = concat_helper(i_df, q_df, ignore_index=True)
     decomposed_dataset[ignore_columns] = df[ignore_columns]
     decomposed_dataset.columns = (
         [f'{c}_i' for c in decompose_columns] + [f'{c}_q' for c in decompose_columns] + ignore_columns

@@ -11,4 +11,4 @@ class CompressorExplainer(Protocol):
 
 
 def compressor_performance_calculator(original_dim, compressed_dim, predictions, targets) -> tuple[float, float]:
-    return mean_absolute_error(targets, predictions), compressed_dim / original_dim
+    return compressed_dim / original_dim, mean_absolute_error(targets, predictions)
