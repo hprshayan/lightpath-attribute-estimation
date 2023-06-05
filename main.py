@@ -16,7 +16,7 @@ def main():
     print('initializing the demo...')
     organize_dirs()
     print('demo project is initialized')
-    # import files
+    # import scenario executors
     from src.multiple_links_sc_classification import execute_multiple_links_scenario
     from src.single_link_sc_regression import execute_single_link_scenario
 

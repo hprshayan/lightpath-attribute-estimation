@@ -53,12 +53,21 @@ def multiple_scenario_low_dim_plot(
     export_path = pathlib.Path(EXP_DIR)
     train_features = concat_helper(train_mat_features.reset_index(drop=True), train_col_features)
     test_features = concat_helper(test_mat_features.reset_index(drop=True), test_col_features)
+    test_targets_class = test_targets + 1  # target should be either 1 or 2 dBm
     low_dim_embedding_plot(
         train_features,
         test_features,
-        test_targets,
+        test_targets_class,
         export_path / f'multiple_scenario.png',
-        f'Multiple Link Scenario Embeddings',
+        f'Multiple Links Scenario Embeddings',
+    )
+    low_dim_embedding_plot(
+        train_features,
+        test_features,
+        test_targets_class,
+        export_path / f'multiple_scenario_zoommed.png',
+        f'Multiple Links Scenario Embeddings (Limited Axis)',
+        limit_axis=True,
     )
 
 

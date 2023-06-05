@@ -129,6 +129,7 @@ def low_dim_embedding_plot(
     test_targets: MyArrayLike,
     fig_path: pathlib.Path,
     title: str,
+    limit_axis=False,
 ) -> None:
     embeddings = calculate_normalized_embeddings(train_features, test_features)
     targets_group = grouping_helper_function(test_targets)
@@ -141,9 +142,12 @@ def low_dim_embedding_plot(
         color = next(colors)
         ax.scatter(*grp_embeddings.T, s=1, c=color)
         ax.text(*cluster_center, str(val), color=color)
-    ax.set_xticklabels(np.round(ax.get_xticks(), decimals=4), rotation=45)
     ax.set_xlabel('1st Scaled Principle Component')
     ax.set_ylabel('2nd Scaled Principle Component')
     ax.set_title(title)
+    if limit_axis:
+        ax.set_xlim((-1.5, 1.5))
+        ax.set_ylim((-1.5, 1.5))
+    ax.set_xticklabels(np.round(ax.get_xticks(), decimals=4), rotation=45)
     fig.tight_layout()
     fig.savefig(fig_path, dpi=DPI)
