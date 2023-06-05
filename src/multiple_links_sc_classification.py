@@ -1,6 +1,4 @@
-import logging
 import pathlib
-import sys
 
 import pandas as pd
 from sklearn.decomposition import PCA
