@@ -1,12 +1,20 @@
+import pathlib
+import warnings
 from pprint import pprint
 from typing import Callable
 
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
+from matplotlib.axes._axes import _log as matplotlib_axes_logger
+from sklearn.decomposition import PCA
 
 from src.compressor import CompressorExplainer, compressor_performance_calculator
-from src.constants import DISTANCE_FEATURE, TEST_DEPICTION_COUNT
+from src.constants import DPI, EMBEDDING_DEMO_DIM, EXP_DIR, TEST_DEPICTION_COUNT
 from src.preprocessing import MyArrayLike
+
+matplotlib_axes_logger.setLevel('ERROR')
+warnings.filterwarnings('ignore')
 
 
 def print_announcement(message: str) -> None:
@@ -98,3 +106,69 @@ def create_classification_report(
     print(f'accuracy: {accuracy}')
     print(f'here are some predictions (with {unit} as unit):')
     print('\n'.join(result_demo_list))
+
+
+def grouping_helper_function(df: pd.Series):
+    reset_index_df = df.reset_index(drop=True)
+    return list(reset_index_df.groupby(reset_index_df))
+
+
+def calculate_normalized_embeddings(train_data: pd.DataFrame, test_data: pd.DataFrame) -> np.ndarray:
+    pca = PCA(n_components=EMBEDDING_DEMO_DIM)
+    pca.fit(train_data)
+    embeddings = pca.transform(test_data)
+    return (embeddings - embeddings.mean()) / embeddings.std()
+
+
+def low_dim_embedding_plot(
+    train_features: MyArrayLike,
+    test_features: MyArrayLike,
+    test_targets: MyArrayLike,
+    fig_path: pathlib.Path,
+    title: str,
+) -> None:
+    embeddings = calculate_normalized_embeddings(train_features, test_features)
+    targets_group = grouping_helper_function(test_targets)
+    fig, ax = plt.subplots()
+    colors = iter(plt.cm.rainbow(np.linspace(0, 1, len(targets_group))))
+    for val, grp in targets_group:
+        indices = grp.index
+        grp_embeddings = embeddings[indices]
+        cluster_center = grp_embeddings.mean(axis=0)
+        color = next(colors)
+        ax.scatter(*grp_embeddings.T, s=1, c=color)
+        ax.text(*cluster_center, str(val), color=color)
+    ax.set_xticklabels(np.round(ax.get_xticks(), decimals=4), rotation=45)
+    ax.set_xlabel('1st Scaled Principle Component')
+    ax.set_ylabel('2nd Scaled Principle Component')
+    ax.set_title(title)
+    fig.tight_layout()
+    fig.savefig(fig_path, dpi=DPI)
+
+
+def single_scenario_low_dim_plot(
+    train_features: MyArrayLike, test_features: MyArrayLike, test_targets: MyArrayLike, modes: MyArrayLike
+) -> None:
+    export_path = pathlib.Path(EXP_DIR)
+    embeddings = calculate_normalized_embeddings(train_features, test_features)
+    modes_group = grouping_helper_function(modes)
+    fig, ax = plt.subplots()
+    colors = iter(plt.cm.rainbow(np.linspace(0, 1, len(modes_group))))
+    for val, grp in modes_group:
+        indices = grp.index
+        low_dim_embedding_plot(
+            train_features.iloc[indices],
+            test_features.iloc[indices],
+            test_targets.iloc[indices],
+            export_path / f'single_scenario({val}).png',
+            f'Single Link Scenario Embeddings ({val} Mode)',
+        )
+        grp_embeddings = embeddings[indices]
+        cluster_center = grp_embeddings.mean(axis=0)
+        color = next(colors)
+        ax.scatter(*grp_embeddings.T, s=1, c=color)
+        ax.text(*cluster_center, str(val), color=color)
+    ax.set_xlabel('1st Scaled Principle Component')
+    ax.set_ylabel('2nd Scaled Principle Component')
+    ax.set_title('Single Link Scenario Embeddings')
+    fig.savefig(export_path / 'single_scenario.png', dpi=DPI)
