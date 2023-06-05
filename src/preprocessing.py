@@ -6,8 +6,6 @@ from typing import Callable, TypeVar
 
 import numpy as np
 import pandas as pd
-from numpy import ndarray
-from scipy.sparse import spmatrix
 from sklearn.discriminant_analysis import StandardScaler
 from sklearn.model_selection import train_test_split
 
@@ -46,10 +44,10 @@ class StandardScalerDf(StandardScaler):
     '''StandardScaler with DataFrame output'''
 
     def transform(self, X):
-        return pd.DataFrame(super().transform(X))
+        return pd.DataFrame(super().transform(X), columns=X.columns)
 
     def inverse_transform(self, X):
-        return pd.DataFrame(super().inverse_transform(X))
+        return pd.DataFrame(super().inverse_transform(X), columns=X.columns)
 
 
 def create_fit_transfrom_standard_scaler(

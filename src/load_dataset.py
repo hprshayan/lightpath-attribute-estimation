@@ -6,6 +6,7 @@ import pandas as pd
 
 from src.constants import (
     ACCESSIBLE_DATA_DIR,
+    DATA_DIR,
     LINK_LENGTH_FEATURE,
     LOCATION_FEATURE,
     MULTIPLE_LINK_DATA_DIR,
@@ -72,7 +73,7 @@ def load_csv_decompose(path: pathlib.Path, label_pattern: str, labels: list[str]
 
 def load_dataset(scenario: Scenario, seed: int | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     '''loads the intended dataset with the extracted labels from file paths'''
-    accessible_data_dir = pathlib.Path(ACCESSIBLE_DATA_DIR)
+    accessible_data_dir = pathlib.Path(DATA_DIR) / ACCESSIBLE_DATA_DIR
     if scenario == Scenario.SINGLE_LINK:
         single_link_data_dir = accessible_data_dir / SINGLE_LINK_DATA_DIR
         labels = [SINGLE_LINK_SPAN_COUNT_FEATURE, SINGLE_LINK_MODE_FEATURE]
