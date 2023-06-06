@@ -113,7 +113,9 @@ def execute_multiple_links_scenario() -> None:
     pca = PCA(n_components=N_COMPONENTS, random_state=SEED)
     train_embeddings = pca.fit_transform(scaled_train_constellation_features)
     # post-compression preprocessing
-    embedding_scaler, scaled_train_embeddings = create_fit_transfrom_standard_scaler(pd.DataFrame(train_embeddings))
+    embedding_scaler, scaled_train_embeddings = create_fit_transfrom_standard_scaler(
+        pd.DataFrame(train_embeddings), column_wise=True
+    )
     logger.info(f'features are compressed with {COMPRESSION_METHOD} and scaled again with another standard scaler')
     feature_constellation_compression_pipeline = make_pipeline([feature_constellation_scaler.transform, pca.transform])
     feature_constellation_compress_decompress_pipeline = make_pipeline(
@@ -135,7 +137,7 @@ def execute_multiple_links_scenario() -> None:
     scaled_train_features = concat_helper(scaled_train_embeddings, col_name_alter_helper(scaled_train_column_features))
     svm_classifier = SVC().fit(scaled_train_features, target_train)
     feature_constellation_fwd_pipeline = make_pipeline(
-        [feature_constellation_compression_pipeline, embedding_scaler.transform]
+        [feature_constellation_compression_pipeline, pd.DataFrame, embedding_scaler.transform]
     )
     scaled_test_column_features = feature_column_scaler.transform(feature_column_test)
     scaled_test_featuers = concat_helper(

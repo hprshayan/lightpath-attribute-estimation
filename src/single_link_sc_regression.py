@@ -91,8 +91,12 @@ def execute_single_link_scenario() -> None:
     pca = PCA(n_components=N_COMPONENTS, random_state=SEED)
     train_embeddings = pca.fit_transform(scaled_train_features)
     # post-compression preprocessing
-    embedding_scaler, scaled_train_embeddings = create_fit_transfrom_standard_scaler(train_embeddings)
-    feature_fwd_pipeline = make_pipeline([feature_scaler.transform, pca.transform, embedding_scaler.transform])
+    embedding_scaler, scaled_train_embeddings = create_fit_transfrom_standard_scaler(
+        pd.DataFrame(train_embeddings), column_wise=True
+    )
+    feature_fwd_pipeline = make_pipeline(
+        [feature_scaler.transform, pca.transform, pd.DataFrame, embedding_scaler.transform]
+    )
     logger.info(f'features are compressed with {COMPRESSION_METHOD} and scaled again with another standard scaler')
     create_compression_report(
         method=COMPRESSION_METHOD,
