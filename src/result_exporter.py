@@ -75,11 +75,19 @@ def create_compression_report(
     compressor_fwd_path: Callable,
     logger,
 ) -> None:
-    compression_ratio, reconstruction_mae = compressor_performance_calculator(
+    compression_ratio, reconstruction_mae, reconstruction_mape = compressor_performance_calculator(
         original_dim, compressed_dim, compressor_fwd_path(features), features
     )
     logger.info(f'compression with {method} method is done.')
-    logger.info('\t'.join([f'compression ratio: {compression_ratio}', f'reconstruction MAE: {reconstruction_mae}']))
+    logger.info(
+        '\t'.join(
+            [
+                f'compression ratio: {(1-compression_ratio)*100:.2f}%',
+                f'reconstruction MAE: {reconstruction_mae:.4f}',
+                f'reconstruction MAPE: {reconstruction_mape*100:.2f}%',
+            ]
+        )
+    )
     logger.info(f'compressed data dimension: {compressed_dim}')
 
 
@@ -106,7 +114,7 @@ def create_classification_report(
     logger.info(f'{scenario_title} classification with {method} approach is done.')
     logger.info(f'confusion matrix:')
     logger.info(c_mat_df)
-    logger.info(f'accuracy: {accuracy}')
+    logger.info(f'accuracy: {accuracy:.5f}')
     logger.info(f'here are some predictions (with {unit} as unit):')
     logger.info('\n'.join(result_demo_list))
 

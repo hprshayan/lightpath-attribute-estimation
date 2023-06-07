@@ -59,4 +59,4 @@ EMBEDDING_DEMO_DIM = 2
 # reports
 TEST_DEPICTION_COUNT = 10
 EXP_DIR = 'exports'
-DPI = 300
+DPI = 500
