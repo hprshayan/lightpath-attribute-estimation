@@ -62,7 +62,7 @@ def single_scenario_low_dim_plot(
     ax.set_xlabel('1st Scaled Principle Component')
     ax.set_ylabel('2nd Scaled Principle Component')
     ax.set_title('Single Link Scenario Embeddings')
-    ax.set_xlim((-1.2, 2.5))
+    ax.set_xlim((-1.2, 2))
     fig.savefig(export_path / 'single_scenario.png', dpi=DPI)
 
 

@@ -90,23 +90,87 @@ The proposed pipeline in Fig.~\ref{figure:models} is implemented in Python and a
 PCA models compress IQ constellation profiles to the embeddings with size 50.
 The datasets are split into train-test subsets with 67\%-33\% ratio.
 Module in Fig.~\ref{figure:models} are trained with the train subset, and the test results are reported in the following.
+\subsection{Single Link Scenario}
+\label{section:results_single_link}
+First, the whole dataset is compressed to embeddings of 2 dimensions with PCA.
+Fig.~\ref{figure:single_whole} shows that there is a clear distincion between the 3 modes in the 2D embeddings.
+\begin{figure}
+	\centering
+    \includegraphics[width=\columnwidth]{figures/single_scenario.png}
+    \caption{Single Link Scenario Embeddings}
+	\label{figure:single_whole}
+\end{figure}
+The same compression process is applied to datapoints of \textit{optimal} mode, which is shown in Fig.~\ref{figure:single_optimal} along with the distance between transmitter and observation point.
+\begin{figure}
+	\centering
+    \includegraphics[width=\columnwidth]{figures/single_scenario(optimal).png}
+    \caption{Single Link Scenario Embeddings for \textit{optimal} mode}
+	\label{figure:single_optimal}
+\end{figure}
+The distance is distinguishable with 2D embeddings.
 
+We train the pipeline in Fig.~\ref{figure:models}.
+The compression metrics of testing data subset after PCA is reported in Table.~\ref{table:compression}.
+\begin{table}
+    \centering
+    \caption{Compression Metrics}
+    \begin{tabular}{l l l l}
+        \hline
+        \hline
+        Scenario & Compression Rate & MAE & MAPE \\
+		\hline \\
+        Single Link & 98.78\% & 1.6085 & 83.65\% \\
+        Multiple Links & 99.69\% & 1.1959 & 67.22\% \\
+        \hline
+    \end{tabular}
+    \label{table:compression}
+\end{table}
 
+The coefficient of determination (R\textsuperscript{2})-score of distance estimation is 0.99916 for the testing data subset.
+
+\subsection{Multiple Links Scenario}
+We compress the IQ constellation profile with PCA and depict the 2D embeddings in Fig.~\ref{figure:multiple_whole}.
+\begin{figure}
+	\centering
+    \includegraphics[width=\columnwidth]{figures/multiple_scenario.png}
+    \caption{Multiple Links Scenario Embeddings. The 1 and 2 dBm launch power datapoint embeddings are shown with purple and red colors, respectively.}
+	\label{figure:multiple_whole}
+\end{figure}
+There no clear distinction between 2D embeddings of 1 and 2 dBm constellation profliles.
+However increasing the size of embeddings might create clusters associated to launch power.
+
+We train the launch power classification in Fig.~\ref{figure:models}.
+The confusion matrix of testing data subset is reported in Table.~\ref{table:confusion_mat}.
+\begin{table}
+    \centering
+    \caption{Launch Power Classification Confusion Matrix}
+    \begin{tabular}{l l l}
+        & 1 dBm (Prediction) & 2 dBm (Prediction) \\
+        \cline{2-3}
+        1 dBm (Target) & \multicolumn{1}{|c|}{132} & \multicolumn{1}{c|}{0} \\
+        \cline{2-3}
+        2 dBm (Target) & \multicolumn{1}{|c|}{34} & \multicolumn{1}{c|}{98} \\
+        \cline{2-3}
+    \end{tabular}
+    \label{table:confusion_mat}
+\end{table}
+The accuracy of classificaion is 0.87121 based on Table.~\ref{table:confusion_mat}
 
 \section{Conclusion}
 \label{section:conclusion}
 
 
+
 \begin{thebibliography}{1}
 \bibliographystyle{IEEEtran}
 
-\bibitem{gnpy}Project, T. GNPy: Optical Route Planning and DWDM Network Optimization. {\em GitHub Repository}. (2023), https://github.com/Telecominfraproject/oopt-gnpy
+\bibitem{gnpy}TIP. GNPy: Optical Route Planning and DWDM Network Optimization. {\em GitHub Repository}. (2023), https://github.com/Telecominfraproject/oopt-gnpy
 
 \bibitem{9761942}Ruiz, M., Sequeira, D. \& Velasco, L. Deep learning-based real-time analysis of lightpath optical constellations [Invited]. {\em Journal Of Optical Communications And Networking}. \textbf{14}, C70-C81 (2022)
 
 \bibitem{data146_2022}Ruiz Ramírez, M., Velasco Esteban, L. \& Sequeira, D. Optical Constellation Analysis (OCATA). (CORA.Repositori de Dades de Recerca,2022), https://doi.org/10.34810/data146
 
-\bibitem{code}Project, T. GNPy: OptiHEREE. {\em GitHub Repository}. (2023), https://github.com/Telecominfraproject/oopt-gnpy
+\bibitem{code}Hajipour, S. Lightpath Length and Launch Power Estimation with Machine Learning. {\em GitHub Repository}. (2023), https://github.com/hprshayan/optical-attribute-estimation
 
 
 

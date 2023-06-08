@@ -82,7 +82,7 @@ def create_compression_report(
     logger.info(
         '\t'.join(
             [
-                f'compression ratio: {(1-compression_ratio)*100:.2f}%',
+                f'compression rate: {(1-compression_ratio)*100:.2f}%',
                 f'reconstruction MAE: {reconstruction_mae:.4f}',
                 f'reconstruction MAPE: {reconstruction_mape*100:.2f}%',
             ]
