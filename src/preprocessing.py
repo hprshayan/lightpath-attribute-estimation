@@ -36,7 +36,7 @@ class CustomStandardScaler:
     def transform(self, data: MyArrayLike) -> pd.DataFrame:
         return pd.DataFrame((data - self._mean) / self._std)
 
-    def inv_transform(self, data: MyArrayLike) -> pd.DataFrame:
+    def inverse_transform(self, data: MyArrayLike) -> pd.DataFrame:
         return pd.DataFrame(data * self._std + self._mean)
 
 

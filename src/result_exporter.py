@@ -41,7 +41,7 @@ def create_regression_report(
     label_scaler: Callable,
     logger,
 ) -> None:
-    predictions = label_scaler.inv_transform(pipeline(feature_test[:TEST_DEPICTION_COUNT])).to_numpy().flatten()
+    predictions = label_scaler.inverse_transform(pipeline(feature_test[:TEST_DEPICTION_COUNT])).to_numpy().flatten()
     targets = target_test[:TEST_DEPICTION_COUNT]
     modes = mode_test[:TEST_DEPICTION_COUNT]
     indices = targets.index

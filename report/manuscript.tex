@@ -119,7 +119,7 @@ The compression metrics of testing data subset after PCA is reported in Table.~\
         \hline
         Scenario & Compression Rate & MAE & MAPE \\
 		\hline \\
-        Single Link & 98.78\% & 1.6085 & 83.65\% \\
+        Single Link & 98.78\% & 0.0475 & 3.5\% \\
         Multiple Links & 99.69\% & 1.1959 & 67.22\% \\
         \hline
     \end{tabular}
@@ -158,7 +158,12 @@ The accuracy of classificaion is 0.87121 based on Table.~\ref{table:confusion_ma
 
 \section{Conclusion}
 \label{section:conclusion}
+The IQ constellation profile could be used to estimate lightpath attributes.
+The report investigates launch power and distance between transmitter and observation point estimation use-cases with ML.
+The use-cases do not require information about the dynamics of optical signal propagation in optical networks.
+Yet, estimations could be derived with raw dataset. 
 
+The study could be extended in several directions, including: investigation of more efficient methods for compression (e.g., Gaussian mixture models), using more complex ML models for classification and regression, hyperparameter search for finding the best ML configurations that optimise the metrics, and error analysis of dataset cohorts.
 
 
 \begin{thebibliography}{1}
@@ -170,7 +175,7 @@ The accuracy of classificaion is 0.87121 based on Table.~\ref{table:confusion_ma
 
 \bibitem{data146_2022}Ruiz Ramírez, M., Velasco Esteban, L. \& Sequeira, D. Optical Constellation Analysis (OCATA). (CORA.Repositori de Dades de Recerca,2022), https://doi.org/10.34810/data146
 
-\bibitem{code}Hajipour, S. Lightpath Length and Launch Power Estimation with Machine Learning. {\em GitHub Repository}. (2023), https://github.com/hprshayan/optical-attribute-estimation
+\bibitem{code}Hajipour, S. Lightpath Length and Launch Power Estimation with Machine Learning. {\em GitHub Repository}. (2023), https://github.com/hprshayan/lightpath-attribute-estimation
 
 
 

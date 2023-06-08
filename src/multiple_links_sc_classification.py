@@ -12,7 +12,7 @@ from src.constants import (
     LINK_LENGTH_FEATURE,
     LOCATION_FEATURE,
     MULTIPLE_LINK_DATA_DIR,
-    N_COMPONENTS,
+    N_COMPONENTS_MULTIPLE_LINKS,
     POWER_FEATURE,
     ROADM_SIDE_FEATURE,
     SEED,
@@ -36,7 +36,7 @@ export_path = pathlib.Path(EXP_DIR)
 
 
 def col_name_alter_helper(data: pd.DataFrame) -> pd.DataFrame:
-    data.columns = [N_COMPONENTS, N_COMPONENTS + 1]
+    data.columns = [N_COMPONENTS_MULTIPLE_LINKS, N_COMPONENTS_MULTIPLE_LINKS + 1]
     return data
 
 
@@ -110,7 +110,7 @@ def execute_multiple_links_scenario() -> None:
         target_test,
     )
     # compression
-    pca = PCA(n_components=N_COMPONENTS, random_state=SEED)
+    pca = PCA(n_components=N_COMPONENTS_MULTIPLE_LINKS, random_state=SEED)
     train_embeddings = pca.fit_transform(scaled_train_constellation_features)
     # post-compression preprocessing
     embedding_scaler, scaled_train_embeddings = create_fit_transfrom_standard_scaler(
@@ -122,13 +122,13 @@ def execute_multiple_links_scenario() -> None:
         [
             feature_constellation_compression_pipeline,
             pca.inverse_transform,
-            feature_constellation_scaler.inv_transform,
+            feature_constellation_scaler.inverse_transform,
         ]
     )
     create_compression_report(
         method=COMPRESSION_METHOD,
         original_dim=feature_constellation_train.shape[1],
-        compressed_dim=N_COMPONENTS,
+        compressed_dim=N_COMPONENTS_MULTIPLE_LINKS,
         features=feature_constellation_test,
         compressor_fwd_path=feature_constellation_compress_decompress_pipeline,
         logger=logger,

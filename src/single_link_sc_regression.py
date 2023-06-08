@@ -11,7 +11,7 @@ from src.constants import (
     DISTANCE_FEATURE,
     DPI,
     EXP_DIR,
-    N_COMPONENTS,
+    N_COMPONENTS_SINGLE_LINK,
     SEED,
     SINGLE_LINK_DATA_DIR,
     SINGLE_LINK_MODE_FEATURE,
@@ -89,7 +89,7 @@ def execute_single_link_scenario() -> None:
     # low dimension insights
     single_scenario_low_dim_plot(scaled_train_features, feature_scaler.transform(feature_test), target_test, mode_test)
     # compression
-    pca = PCA(n_components=N_COMPONENTS, random_state=SEED)
+    pca = PCA(n_components=N_COMPONENTS_SINGLE_LINK, random_state=SEED)
     train_embeddings = pca.fit_transform(scaled_train_features)
     # post-compression preprocessing
     embedding_scaler, scaled_train_embeddings = create_fit_transfrom_standard_scaler(
@@ -102,9 +102,16 @@ def execute_single_link_scenario() -> None:
     create_compression_report(
         method=COMPRESSION_METHOD,
         original_dim=features.shape[1],
-        compressed_dim=N_COMPONENTS,
+        compressed_dim=N_COMPONENTS_SINGLE_LINK,
         features=feature_test,
-        compressor_fwd_path=make_pipeline([feature_fwd_pipeline, pca.inverse_transform]),
+        compressor_fwd_path=make_pipeline(
+            [
+                feature_fwd_pipeline,
+                embedding_scaler.inverse_transform,
+                pca.inverse_transform,
+                feature_scaler.inverse_transform,
+            ]
+        ),
         logger=logger,
     )
     # regressor train
