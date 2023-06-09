@@ -82,7 +82,7 @@ def execute_single_link_scenario() -> None:
         test_size=TEST_SIZE_RATIO,
         random_state=SEED,
     )
-    # pre-compression preprocessing
+    # pre-compression preprocessing with standard scaling
     label_scaler, scaled_train_labels = create_fit_transfrom_standard_scaler(target_train)
     feature_scaler, scaled_train_features = create_fit_transfrom_standard_scaler(feature_train)
     logger.info('dataset is loaded and preprocessed with standard scaler and split into train-test')
@@ -91,7 +91,7 @@ def execute_single_link_scenario() -> None:
     # compression
     pca = PCA(n_components=N_COMPONENTS_SINGLE_LINK, random_state=SEED)
     train_embeddings = pca.fit_transform(scaled_train_features)
-    # post-compression preprocessing
+    # post-compression preprocessing with standard scaler
     embedding_scaler, scaled_train_embeddings = create_fit_transfrom_standard_scaler(
         pd.DataFrame(train_embeddings), column_wise=True
     )

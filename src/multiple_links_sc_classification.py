@@ -36,6 +36,7 @@ export_path = pathlib.Path(EXP_DIR)
 
 
 def col_name_alter_helper(data: pd.DataFrame) -> pd.DataFrame:
+    # helper function that changes dataframe column names
     data.columns = [N_COMPONENTS_MULTIPLE_LINKS, N_COMPONENTS_MULTIPLE_LINKS + 1]
     return data
 
@@ -77,7 +78,7 @@ def execute_multiple_links_scenario() -> None:
     labels[[DISTANCE_FEATURE, ROADM_SIDE_FEATURE, POWER_FEATURE]] = calculate_multiple_link_label_derivations(
         labels[[LINK_LENGTH_FEATURE, LOCATION_FEATURE, POWER_FEATURE]]
     )
-    # train-test split
+    # train-test split into constellation profiles, [distance, roadm side], launch power
     (
         feature_constellation_train,
         feature_constellation_test,
@@ -92,7 +93,7 @@ def execute_multiple_links_scenario() -> None:
         test_size=TEST_SIZE_RATIO,
         random_state=SEED,
     )
-    # pre-compression preprocessing
+    # pre-compression preprocessing with standard scaling
     feature_constellation_scaler, scaled_train_constellation_features = create_fit_transfrom_standard_scaler(
         feature_constellation_train
     )
@@ -112,7 +113,7 @@ def execute_multiple_links_scenario() -> None:
     # compression
     pca = PCA(n_components=N_COMPONENTS_MULTIPLE_LINKS, random_state=SEED)
     train_embeddings = pca.fit_transform(scaled_train_constellation_features)
-    # post-compression preprocessing
+    # post-compression preprocessing with standard scaler
     embedding_scaler, scaled_train_embeddings = create_fit_transfrom_standard_scaler(
         pd.DataFrame(train_embeddings), column_wise=True
     )

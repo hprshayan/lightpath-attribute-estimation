@@ -67,6 +67,7 @@ def make_pipeline(steps: list[Callable]) -> Callable:
 
 
 def custom_train_test_split(*dfs: MyArrayLike, test_size: float, random_state: int) -> tuple[MyArrayLike, ...]:
+    '''splits any number of dataframes into train and test splits'''
     row_count = dfs[0].shape[0]
     train_indices, test_indices = train_test_split(range(row_count), test_size=test_size, random_state=random_state)
     return tuple(chain(*((df.iloc[train_indices], df.iloc[test_indices]) for df in dfs)))

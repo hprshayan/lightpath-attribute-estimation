@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 
 from src.compressor import compressor_performance_calculator
 from src.constants import DPI, EMBEDDING_DEMO_DIM, SEED, TEST_DEPICTION_COUNT
-from src.preprocessing import MyArrayLike
+from src.preprocessing import CustomStandardScaler, MyArrayLike
 
 
 def print_announcement(message: str) -> None:
@@ -125,10 +125,12 @@ def grouping_helper_function(df: pd.Series):
 
 
 def calculate_normalized_embeddings(train_data: pd.DataFrame, test_data: pd.DataFrame) -> np.ndarray:
+    '''fits a PCA and standard scaler on training data and returns the scaled embeddings of test_data'''
     pca = PCA(n_components=EMBEDDING_DEMO_DIM, random_state=SEED)
-    pca.fit(train_data)
-    embeddings = pca.transform(test_data)
-    return (embeddings - embeddings.mean()) / embeddings.std()
+    train_embeddings = pca.fit_transform(train_data)
+    scaler = CustomStandardScaler().fit(train_embeddings)
+    test_embeddings = pca.transform(test_data)
+    return scaler.transform(test_embeddings).to_numpy()
 
 
 def low_dim_embedding_plot(
@@ -139,6 +141,7 @@ def low_dim_embedding_plot(
     title: str,
     limit_axis=False,
 ) -> None:
+    '''plots low dim embeddings of test data after training the embedding pipeline with train_data'''
     embeddings = calculate_normalized_embeddings(train_features, test_features)
     targets_group = grouping_helper_function(test_targets)
     fig, ax = plt.subplots()
