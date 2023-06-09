@@ -10,6 +10,8 @@ python -m venv venv
 source venv/bin/activate
 python -m pip install -r requirements.txt
 ```
+Next, download the dataset (version 2.2) from [dataverse](https://doi.org/10.34810/data146) and place it in `data/dataverse_files.zip` path.
+
 After the environment setup finished, the code could be executed by:
 ```sh
 python main.py

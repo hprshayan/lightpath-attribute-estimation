@@ -22,7 +22,7 @@ POWER_FEATURE = 'power'
 LOCATION_FEATURE = 'location'
 ROADM_SIDE_FEATURE = 'roadm_side'
 LINK_LENGTH_FEATURE = 'link_length'
-ORIGINAL_DATA_ZIP_DIR = 'constellation-dataset.zip'
+ORIGINAL_DATA_ZIP_DIR = 'dataverse_files.zip'
 
 # single scenario constants
 SINGLE_LINK_DATA_DIR = 'single_link_scenario'
