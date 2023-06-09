@@ -34,11 +34,6 @@ src
 └── single_link_sc_regression.py
 data
 ├── accessible_dataset
-│   ├── 16QAM-multipleLink-s1_data.zip
-│   ├── 16QAM-multipleLink-s1_description.pdf
-│   ├── 16QAM-singleLink-s1_data.zip
-│   ├── 16QAM-singleLink-s1_description.pdf
-│   ├── MANIFEST.TXT
 │   ├── multiple_link_scenario
 │   |   └── csv files ....
 │   ├── Readme.txt
