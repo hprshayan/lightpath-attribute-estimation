@@ -1,0 +1,23 @@
+dataset is loaded and preprocessed with standard scaler and split into train-test
+features are compressed with PCA and scaled again with another standard scaler
+compression with PCA method is done.
+compression rate: 99.69%	reconstruction MAE: 1.1959	reconstruction MAPE: 67.22%
+compressed data dimension: 50
+multiple links scenario classification with PCA + SVM approach is done.
+confusion matrix:
+                1 dBm (prediction)  2 dBm (prediction)
+1 dBm (target)                 132                   0
+2 dBm (target)                  34                  98
+accuracy: 0.87121
+here are some predictions (with dBm as unit):
+  index          prediction          target
+  501            1                   1              
+  141            1                   1              
+  496            1                   1              
+  578            2                   2              
+  463            1                   1              
+  56             1                   1              
+  35             1                   2              
+  771            1                   1              
+  63             2                   2              
+  285            1                   2              
